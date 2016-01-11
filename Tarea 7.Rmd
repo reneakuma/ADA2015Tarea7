@@ -1,0 +1,131 @@
+---
+title: "Tarea 7"
+author: "Rene Gabriel Valladares Elizarraras"
+date: "January 03, 2016"
+output: html_document
+---
+
+```{r}
+PACKAGES<-c("gdata","R.utils")
+for (package in PACKAGES ) {
+  if (!require(package, character.only=T, quietly=T)) {
+      install.packages(package)
+      library(package)
+  }
+}
+```
+
+```{r}
+setwd("~/dev/workspaceR/Tarea7")
+```
+
+```{r}
+# Se establece el valor de las variables usadas en
+# las siguientes funciones
+DIR<-"./descarga"
+if( !file.exists(DIR) ) {
+  dir.create(file.path(DIR), recursive=TRUE) 
+  if( !dir.exists(DIR) ) {
+    stop("No existe directorio")
+  }
+}
+```
+
+```{r}
+# Se establece el valor de las variables usadas en
+# las siguientes funciones
+DIR<-"./datos"
+if( !file.exists(DIR) ) {
+  dir.create(file.path(DIR), recursive=TRUE) 
+  if( !dir.exists(DIR) ) {
+    stop("No existe directorio")
+  }
+}
+```
+
+```{r}
+FILES<-read.csv("ligas.csv")
+```
+
+```{r}
+# FILES es la lista de archivos para ser descargados.
+# Otras variables deben ser declaradas para evitar colocar rutas en el c??digo.
+for( file in FILES$NOMBRE_ARCHIVO ){
+  # Se valida si el archivo descompactado ya existe en el ??rea de datos.
+  if( ! file.exists(paste("./datos/",file,".csv", sep=""))) {
+    # Si no existe se busca el archivo compactado en el ??rea de descarga.
+    if( ! file.exists(paste("./descarga/",file,".csv.gz", sep="")) ){
+        download.file(paste("http://www1.ncdc.noaa.gov/pub/data/swdi/stormevents/csvfiles/",file,".csv.gz", sep=""),paste("./descarga/",file,".csv.gz", sep="")) 
+      gunzip(filename=paste("./descarga/",file,".csv.gz",sep = ""),destname=paste("./datos/",file,".csv",sep = ""))
+    } 
+  }
+}
+```
+
+```{r}
+# FILES es la lista de archivos para ser descargados.
+if( exists("Fatalities") ){
+  rm(Fatalities)
+}
+for( file in FILES$NOMBRE_ARCHIVO ){
+  # Se valida si el archivo descompactado ya existe en el area de datos.
+  if(file.exists(paste("./datos/",file,".csv", sep=""))) {
+    if(!exists("Fatalities") ){
+      Fatalities<-read.csv(paste("./datos/",file,".csv", sep=""),header=T, sep=",", na.strings="")
+      datos<-read.csv(paste("./datos/",file,".csv", sep=""))
+      show(file)
+      show(nrow(datos))
+      rm(datos)
+    } else {
+        data<-read.csv(paste("./datos/",file,".csv", sep=""),header=T, sep=",", na.strings="")
+        Fatalities<-rbind(Fatalities,data)
+        show(file)
+        show(nrow(data))
+        rm(data)
+    }
+  }
+}
+show(nrow(Fatalities))
+```
+
+## Tarea 7
+
+```{r}
+head(Fatalities[, 1:11])
+nrow(Fatalities)
+ncol(Fatalities)
+dim(Fatalities)
+names(Fatalities)
+colnames(Fatalities)
+summary(Fatalities)
+
+hist(Fatalities$FAT_YEARMONTH)
+hist(Fatalities$FAT_DAY)
+hist(Fatalities$FAT_TIME)
+hist(Fatalities$FATALITY_ID)
+hist(Fatalities$EVENT_ID)
+#hist(Fatalities$FATALITY_TYPE)
+#hist(Fatalities$FATALITY_DATE)
+hist(Fatalities$FATALITY_AGE)
+#hist(Fatalities$FATALITY_SEX)
+#hist(Fatalities$FATALITY_LOCATION)
+hist(Fatalities$EVENT_YEARMONTH)
+
+summary(Fatalities$FATALITY_DATE)
+mean(is.na(Fatalities$FATALITY_DATE))
+#boxplot(log2(Fatalities$FATALITY_DATE), log2(Fatalities$FATALITY_AGE))
+dates <- Fatalities$FATALITY_DATE
+dates <- as.Date(as.character(dates), "%m%d%Y")
+missing.months <- month.name[as.POSIXlt(dates)$mon + 1]
+tab <- table(factor(missing.months, levels = month.name))
+round(100 * tab / sum(tab))
+
+summary(Fatalities$FATALITY_AGE)
+mean(is.na(Fatalities$FATALITY_AGE))
+
+summary(Fatalities$FATALITY_SEX)
+mean(is.na(Fatalities$FATALITY_SEX))
+
+summary(Fatalities$FATALITY_LOCATION)
+mean(is.na(Fatalities$FATALITY_LOCATION))
+```
