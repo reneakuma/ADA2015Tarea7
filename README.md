@@ -18,7 +18,7 @@ Archivo que contiene las URLs y el nombre de los archivos
 ligas.csv
 
 Script Markdown de R
-Tarea 6.Rmd
+Tarea 7.Rmd
 
 Archivo generado de la ejecucion del script de R
 Tarea_7.html
